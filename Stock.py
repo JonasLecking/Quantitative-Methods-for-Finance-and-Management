@@ -99,8 +99,8 @@ class Stock():
     def annualized_volatility(self):
         return self.daily_volatility() * np.sqrt(252)
         
-    def option(self, strike_price, expiration_date):
-        return Option(self.ticker, strike_price, expiration_date, self.price_history["Close"][0], self.annualized_volatility())
+    def option(self, strike_price, expiration_date, risk_free_rate):
+        return Option(self.ticker, strike_price, expiration_date, self.price_history["Close"][0], self.annualized_volatility(), risk_free_rate)
 
 
     
