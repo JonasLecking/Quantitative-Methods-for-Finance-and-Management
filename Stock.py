@@ -1,11 +1,13 @@
 import Configuration.Stock as config
 import datetime as dt
 import mplfinance as mpf
+import statistics as stats
+import numpy as np
 
+from Option import Option
 from datetime import datetime as dtdt
 
 class Stock():
-
 
     def __init__(self, ticker):
         self.ticker = ticker
@@ -22,7 +24,6 @@ class Stock():
             except:
                 print("Add error code.")
         
-
         if config.should_get_intraday:
             try:
                 self.intraday = config.get_intraday(ticker)
@@ -87,13 +88,20 @@ class Stock():
         else:
             date_3_mo_prior_to_last = config.end_date - dt.timedelta(months=3)
             length = len(self.price_history.index.loc[:date_3_mo_prior_to_last])
-            volumes = self.price_history["volume"][:length]
+            volumes = self.price_history["Volume"][:length]
             return (sum(volumes)/len(volumes))
-            
-            
 
-    def option(strike_price, expiration_date):
-        pass 
+    def daily_volatility(self):
+        price_history = self.price_history
+        price_history["Daily Change"] = self.price_history["Close"][::-1].pct_change()
+        return stats.stdev(price_history["Daily Change"].to_list()[:252])
+
+    def annualized_volatility(self):
+        return self.daily_volatility() * np.sqrt(252)
+        
+    def option(self, strike_price, expiration_date):
+        return Option(self.ticker, strike_price, expiration_date, self.price_history["Close"][0], self.annualized_volatility())
+
 
     
 
